@@ -1,43 +1,78 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
-const RegisterPage = () => {
+const Register = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post("http://localhost:4000/api/register", formData);
+      console.log("Registration successful:", res);
+      alert("Registration successful! Please login.");
+      if (res.data.token) {
+        localStorage.setItem("token", res.data.token);
+        navigate("/login");
+      }
+    } catch (error) {
+      console.error("Registration error:", error.response?.data || error.message);
+      alert("Registration failed. Check console for details.");
+    }
+  };
+
   return (
-    <div className="min-h-screen w-screen flex items-center justify-center bg-gradient-to-bl from-pink-600 via-purple-600 to-indigo-600">
+    <div className="min-h-screen  w-screen flex items-center justify-center bg-gradient-to-bl from-pink-600 via-purple-600 to-indigo-600">
       <div className="bg-white/10 backdrop-blur-md p-8 rounded-3xl shadow-2xl w-full max-w-md border border-white/20">
-        <h2 className="text-white text-3xl font-bold mb-6 text-center">Register</h2>
-        <form className="space-y-4">
+        <h2 className="text-3xl font-bold text-white text-center mb-6">Register</h2>
+        <form onSubmit={handleSubmit} className="space-y-5">
           <input
             type="text"
+            name="name"
             placeholder="Name"
-            className="w-full px-4 py-3 rounded-lg bg-white/20 text-white placeholder-white/70 outline-none focus:ring-2 focus:ring-white"
+            value={formData.name}
+            onChange={handleChange}
+            className="w-full px-4 py-3 rounded-xl bg-white/20 text-white placeholder-white/70 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/40"
           />
           <input
             type="email"
+            name="email"
             placeholder="Email"
-            className="w-full px-4 py-3 rounded-lg bg-white/20 text-white placeholder-white/70 outline-none focus:ring-2 focus:ring-white"
+            value={formData.email}
+            onChange={handleChange}
+            className="w-full px-4 py-3 rounded-xl bg-white/20 text-white placeholder-white/70 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/40"
           />
           <input
             type="password"
+            name="password"
             placeholder="Password"
-            className="w-full px-4 py-3 rounded-lg bg-white/20 text-white placeholder-white/70 outline-none focus:ring-2 focus:ring-white"
+            value={formData.password}
+            onChange={handleChange}
+            className="w-full px-4 py-3 rounded-xl bg-white/20 text-white placeholder-white/70 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/40"
           />
           <button
             type="submit"
-            className="w-full py-3 bg-white text-pink-600 font-bold rounded-lg shadow-lg hover:bg-gray-100 transition"
+            className="w-full py-3 rounded-xl bg-white/30 hover:bg-white/40 text-white font-semibold shadow-md transition duration-200"
           >
-            Register
+            Create Account
           </button>
         </form>
-        <p className="text-center text-white mt-4">
-          Already have an account?{' '}
-          <Link to="/login" className="underline text-white font-semibold">
-            Login
-          </Link>
+        <p className="text-white mt-4 text-center">
+          Already have an account? <Link to="/login" className="underline">Login</Link>
         </p>
       </div>
     </div>
   );
 };
 
-export default RegisterPage;
+export default Register;
